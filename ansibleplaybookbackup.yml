@@ -1,0 +1,30 @@
+- name : Configure Docker on EC2 Instances
+  hosts : all
+  become: true
+  connection : ssh
+  tasks : 
+  - name: updating apt
+    command : sudo apt-get update
+
+  - name : Install Docker
+    command : sudo apt-get install -y docker.io
+    become : yes
+    become_user : root
+
+  - name : Start Docker Service
+    command : sudo systemctl start docker
+    become : yes
+    become_user : root
+
+  - name: Copy file with owner and permission, using symbolic representation
+    ansible.builtin.copy:
+      src: ./medicure.yml
+      dest: /home/ubuntu/medicure.yml
+      owner: ubuntu
+      group: ubuntu
+      mode: u=rw,g=r,o=r
+   
+  - name : run container
+    command : kubectl apply -f /home/ubuntu/medicure.yml
+    become : yes
+    become_user : ubuntu
